@@ -1120,6 +1120,30 @@ func (m *ApplicationResource) ListApplicationUsers(ctx context.Context, appId st
 	return appUser, resp, nil
 }
 
+// Enumerates all assigned [application users](#application-user-model) for an application without profile information.
+func (m *ApplicationResource) ListApplicationUsersSkinny(ctx context.Context, appId string, qp *query.Params) ([]*AppUser, *Response, error) {
+	url := fmt.Sprintf("/api/v1/apps/%v/skinny_users", appId)
+	if qp != nil {
+		url = url + qp.String()
+	}
+
+	rq := m.client.CloneRequestExecutor()
+
+	req, err := rq.WithAccept("application/json").WithContentType("application/json").NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var appUser []*AppUser
+
+	resp, err := rq.Do(ctx, req, &appUser)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return appUser, resp, nil
+}
+
 // Assigns an user to an application with [credentials](#application-user-credentials-object) and an app-specific [profile](#application-user-profile-object). Profile mappings defined for the application are first applied before applying any profile properties specified in the request.
 func (m *ApplicationResource) AssignUserToApplication(ctx context.Context, appId string, body AppUser) (*AppUser, *Response, error) {
 	url := fmt.Sprintf("/api/v1/apps/%v/users", appId)

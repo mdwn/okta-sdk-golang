@@ -591,6 +591,30 @@ func (m *GroupResource) ListGroupUsers(ctx context.Context, groupId string, qp *
 	return user, resp, nil
 }
 
+// Enumerates all users that are a member of a group without profile information.
+func (m *GroupResource) ListGroupUsersSkinny(ctx context.Context, groupId string, qp *query.Params) ([]*User, *Response, error) {
+	url := fmt.Sprintf("/api/v1/groups/%v/skinny_users", groupId)
+	if qp != nil {
+		url = url + qp.String()
+	}
+
+	rq := m.client.CloneRequestExecutor()
+
+	req, err := rq.WithAccept("application/json").WithContentType("application/json").NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var user []*User
+
+	resp, err := rq.Do(ctx, req, &user)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return user, resp, nil
+}
+
 // Removes a user from a group with &#x27;OKTA_GROUP&#x27; type.
 func (m *GroupResource) RemoveUserFromGroup(ctx context.Context, groupId string, userId string) (*Response, error) {
 	url := fmt.Sprintf("/api/v1/groups/%v/users/%v", groupId, userId)
